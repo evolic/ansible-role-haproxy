@@ -3,11 +3,11 @@ global
     log /dev/log  local1 notice
 
     {% if haproxy_socket != '' %}
-      stats socket {{ haproxy_socket }} level admin
+        stats socket {{ haproxy_socket }} level admin
     {% endif %}
 
     {% if haproxy_chroot != '' %}
-      chroot {{ haproxy_chroot }}
+        chroot {{ haproxy_chroot }}
     {% endif %}
 
     user {{ haproxy_user }}
@@ -25,13 +25,13 @@ defaults
     option  dontlognull
 
     {% if haproxy_version is version('1.4', '<=') %}
-            contimeout {{ haproxy_connect_timeout }}
-            clitimeout {{ haproxy_client_timeout }}
-            srvtimeout {{ haproxy_server_timeout }}
+        contimeout {{ haproxy_connect_timeout }}
+        clitimeout {{ haproxy_client_timeout }}
+        srvtimeout {{ haproxy_server_timeout }}
     {% else %}
-            timeout connect {{ haproxy_connect_timeout }}
-            timeout client {{ haproxy_client_timeout }}
-            timeout server {{ haproxy_server_timeout }}
+        timeout connect {{ haproxy_connect_timeout }}
+        timeout client {{ haproxy_client_timeout }}
+        timeout server {{ haproxy_server_timeout }}
     {% endif %}
 
     {% if ansible_os_family == 'Debian' %}
@@ -51,10 +51,9 @@ frontend http
 
     # Place for all the ACL's
     {% for frontend in haproxy_frontends %}
-    acl {{ frontend.name }} hdr(host) req_ssl_sni -i {{ frontend.address }}
-    # acl {{ frontend.name }} hdr(host) req_ssl_sni -i {{ frontend.address }}:443
-    use_backend {{ frontend.backend }} if {{ frontend.name }}
-
+        acl {{ frontend.name }} hdr(host) req_ssl_sni -i {{ frontend.address }}
+        # acl {{ frontend.name }} hdr(host) req_ssl_sni -i {{ frontend.address }}:443
+        use_backend {{ frontend.backend }} if {{ frontend.name }}
     {% endfor %}
 
 # Place for all the backends
@@ -64,11 +63,15 @@ backend {{ backend.name }}
     balance {{ haproxy_backend_balance_method }}
     option forwardfor
 
-    {% if haproxy_backend_httpchk != '' %}
-    option httpchk {{ haproxy_backend_httpchk }}
+    {% if haproxy_backend_http_check_directive != '' %}
+        option {{ haproxy_backend_http_check_directive }}
+
+        {% if haproxy_backend_http_check_method != '' and haproxy_backend_http_check_uri != '' %}
+        http-check send meth {{ haproxy_backend_http_check_method }} uri {{ haproxy_backend_http_check_uri }}
+        {% endif %}
     {% endif %}
 
     {% for server in backend.servers %}
-    server {{ server.name }} {{ server.address }} cookie {{ server.name }} {{ server.options }}
+        server {{ server.name }} {{ server.address }} cookie {{ server.name }} {{ server.options }}
     {% endfor %}
 {% endfor %}
