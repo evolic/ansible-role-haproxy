@@ -64,8 +64,8 @@ backend {{ backend.name }}
     balance {{ haproxy_backend_balance_method }}
     option forwardfor
 
-    {% if haproxy_backend_httpchk != '' %}
-    option httpchk {{ haproxy_backend_httpchk }}
+    {% if haproxy_backend_http_check_directive != '' and haproxy_backend_http_check_value != '' %}
+    option {{ haproxy_backend_http_check_directive }} {{ haproxy_backend_http_check_value }}
     {% endif %}
 
     {% for server in backend.servers %}

@@ -6,7 +6,8 @@ haproxy_group: haproxy
 
 # Backend settings.
 haproxy_backend_balance_method: 'roundrobin'
-haproxy_backend_httpchk: 'HEAD / HTTP/1.1\r\nHost:localhost'
+haproxy_backend_http_check_directive: 'http-check send'
+haproxy_backend_http_check_value: 'HEAD / HTTP/1.1\r\nHost:localhost'
 
 # ########################################################## #
 # # Below are the default settings for the HAProxy config. # #
